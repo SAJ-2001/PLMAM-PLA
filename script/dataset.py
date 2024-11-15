@@ -45,13 +45,8 @@ class MyDataset(Dataset):
         smiless_embedding = []
 
         affinity_df = pd.read_csv(data_path / 'affinity_data.csv', sep='\t')
-
         ligands_df = pd.read_csv(data_path / f"{phase}_smi.csv")
         prots_df = pd.read_csv(data_path / f"{phase}_seq.csv")
-        common_pdbids1 = set(affinity_df['pdbid'])
-        common_pdbids2 =set(ligands_df['pdbid'])
-        common_pdbids3 =set(prots_df['pdbid'])
-
 
 
         # Check if pdbid exists in all dataframes
@@ -59,9 +54,7 @@ class MyDataset(Dataset):
         # Filter ligands and prots based on common_pdbids
         ligands = {i["pdbid"]: i["smiles"] for _, i in ligands_df.iterrows() if i["pdbid"] in common_pdbids}
         prots = {i["pdbid"]: i["seq"] for _, i in prots_df.iterrows() if i["pdbid"] in common_pdbids}
-
-
-
+      
         affinity = {}
         self.affinity = affinity
         for pdbid in common_pdbids:
@@ -69,23 +62,19 @@ class MyDataset(Dataset):
             if len(affinity_val) > 0:
                 self.affinity[pdbid] = affinity_val[0]
 
-
-
         smiles_feature = {}
         for pdbid in  ligands:
-            npy_file_path = data_path/f'A_Molformer1/{pdbid}.npy'
+            npy_file_path = data_path/f'Molformer1/{pdbid}.npy'
             smiles_feature[pdbid] = np.load(npy_file_path, allow_pickle=True)
             smiles_embedding = smiles_feature[pdbid]
             smiless_embedding.append(smiles_embedding)
 
-
         pro_feature = {}
         for pdbid in  prots:
-            npy_file_path = data_path/f'A_token embedding1-1000-8M/{pdbid}.npy'
+            npy_file_path = data_path/f'token embedding1-1000-8M/{pdbid}.npy'
             pro_feature[pdbid] = np.load(npy_file_path, allow_pickle=True)
             pro_embedding = pro_feature[pdbid]
             prots_embedding.append(pro_embedding)
-
 
         self.smi = ligands
         self.pdbids = list(common_pdbids)
@@ -105,6 +94,4 @@ class MyDataset(Dataset):
         protseq = self.prots[pdbid]
         prots_embedding = torch.tensor(self.prots_embedding[idx])
         smiles_embedding = torch.tensor(self.smiles_embedding[idx])
-        return  label_smiles(aug_smile, self.max_smi_len),label_sequence(protseq,self.max_seq_len),smiles_embedding, prots_embedding ,np.array(self.affinity[pdbid], dtype=np.float32),pdbid
-
-
+        return  label_smiles(aug_smile, self.max_smi_len),label_sequence(protseq,self.max_seq_len),smiles_embedding, prots_embedding ,np.array(self.affinity[pdbid], dtype=np.float32)
