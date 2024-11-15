@@ -1,0 +1,4 @@
+PLMAM-PLA.jpg filter=lfs diff=lfs merge=lfs -text
+best-result filter=lfs diff=lfs merge=lfs -text
+best_model.pt filter=lfs diff=lfs merge=lfs -text
+data filter=lfs diff=lfs merge=lfs -text
