@@ -58,6 +58,5 @@ inputs = tokenizer(smiles, padding=True, return_tensors="pt")
 with torch.no_grad():
     outputs = model(**inputs)
 outputs.pooler_output
-
-    - To train the model, we can run `main.py` script using the training dataset.
-    - We can also run `test.py` to test the model
+   -   To train the model, we can run `main.py` script using the training dataset.
+   -   We can also run `test.py` to test the model
