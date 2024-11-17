@@ -41,7 +41,7 @@ Python 3.9 and packages version:
    For this study, we choose PDBbind database includes a set of experimentally validated protein-ligand binding affinities from the Protein Data Bank, expressed as -logKi, -logKd, or -logIC50. Three datasets (the general set, the refined set, and the core 2016 set) from PDBbind version 2016 were used in our work. The general set contains 9226 collected protein-ligand complexes. The refined set contains a total of 4057 high-quality affinity data and complexes. The core 2016 set is typically used as a high-quality benchmark and includes a diverse set of structural and binding data for evaluating various docking methods. To ensure that there was no data overlap between the three datasets, 290 protein-ligand complexes from the core 2016 set were removed from the refined set. The final general set contains 9221 complexes, the refined set contains 3685 complexes, and the core 2016 set contains 290 complexes. Then, we randomly selected 1000 complexes in the refined set as the validation set, and merged the remaining complexes into the universal set as the training set. All in all, we have 11906 training samples, 1000 validation samples, and 290 test samples.
 
 ### 3.2 **Model**
-   -  The overall architectures of PLMAM-PLA is presented in the following figure, which consists of a Feature extraction module, a Feature enhancement module, a Feature fusion module and a Output module.
+   -  The overall architectures of PLMAM-PLA is presented in the following figure, which consists of a feature extraction module, a feature enhancement module, a feature fusion module and an output module.
    -  ![Model Architecture](https://github.com/SAJ-2001/PLMAM-PLA/blob/main/PLMAM-PLA.jpg)
    -  best_model.pt is the PLMAM-PLA model that is trained on the training subest of the PDBbind dataset.
    -  The ESM-2 model is available at (https://github.com/facebookresearch/esm) and Molformer model is available at (https://huggingface.co/ibm/MoLFormer-XL-both-10pct).
@@ -59,5 +59,9 @@ with torch.no_grad():
     outputs = model(**inputs)
 outputs.pooler_output
 ```
-   -   To train the model, we can run `main.py` script using the training dataset.
+   -   To train the model, we can run `main.py` script using the train and valid dataset.
    -   We can also run `test.py` to test the model
+### 3.3 **script**
+   - `dataset.py` converts protein sequences into token embeddings.
+   - `cross_attention.py` implements cross attention mechanisms.
+   - `model.py` implements the PLMAM-PLA which consists of a feature extraction module, a feature enhancement module, a feature fusion module and an output module.
