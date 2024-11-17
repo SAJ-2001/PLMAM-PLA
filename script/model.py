@@ -23,7 +23,6 @@ class ResDilaCNNBlock(nn.Module):
         # x: batchSize × filterSize × seqLen
         return x + self.layers(x)
 
-
 class ResDilaCNNBlocks(nn.Module):
 
     def __init__(self, feaSize, filterSize, blockNum=5, dilaSizeList=[1, 2, 4, 8, 16], dropout=0.2,
@@ -131,8 +130,6 @@ class SKConv(nn.Module):
         V = V.transpose(1, 2)
         return V  # [batch_size, out_channels, d]
 
-
-
 class MultiHeadAttentionInteract(nn.Module):
     """
         多头注意力的交互层
@@ -174,25 +171,16 @@ class MultiHeadAttentionInteract(nn.Module):
 
         inner = torch.matmul(Query, Key.transpose(-2, -1))
         inner = inner / self.attention_head_size ** 0.5
-
         attn_w = F.softmax(inner, dim=-1)
-
         attn_w = F.dropout(attn_w, p=self.dropout)
-
         results = torch.matmul(attn_w, Value)
-
         results = torch.cat(torch.split(results, 1, ), dim=-1)
         results = torch.squeeze(results, dim=0)  # (bs, fields, D)
 
         if self.use_residual:
             results = results + torch.tensordot(x, self.W_R, dims=([-1], [0]))
-
         results = self.act(results)
-
         return results
-
-
-
 
 
 class Selfattention(nn.Module):
@@ -222,13 +210,8 @@ class Selfattention(nn.Module):
         b, f, e = x.shape
         vec_wise_x = self.vec_wise_net(x).reshape(b, f * e)
         m_vec = self.trans_vec_nn(vec_wise_x)
-
         m_x = m_vec
         return m_x
-
-
-
-
 
 class MultiViewNet(nn.Module):
 
@@ -258,7 +241,6 @@ class MultiViewNet(nn.Module):
         proj_dim = 256
         field_dim = 4
         self.feature_interact = Selfattention(field_dim=field_dim, embed_size=proj_dim, head_num=8)
-
 
         self.transform = nn.Sequential(
             nn.LayerNorm(1024),
@@ -299,10 +281,6 @@ class MultiViewNet(nn.Module):
 
         out = self.transform(all_features)
         return out
-
-
-
-
 
 def test(model: nn.Module, test_loader, loss_function, device, show, _p):
     path = 'result0/'
