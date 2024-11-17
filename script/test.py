@@ -31,16 +31,12 @@ data_loaders = {phase_name:
                                shuffle=False,
                                )
 
-                for phase_name in ['training', 'validation', 'test','sars','test2013','p38','Aurora kinase','1','Aurora']}
-
-
+                for phase_name in ['training', 'validation', 'test']}
 
 
 loss_function = nn.MSELoss(reduction='sum')  #
-
 start = datetime.now()
 print('start at ', start)
-
 
 def test(model: nn.Module, test_loader, loss_function, device, show, _p):
     path = '../script/result-A/'
@@ -54,12 +50,8 @@ def test(model: nn.Module, test_loader, loss_function, device, show, _p):
             sequence = x[1].to(device)
             smi = x[2].to(device)
             seq = x[3].to(device)
-
-
             y = y.to(device)
-
             y_hat = model(smile,sequence ,smi,seq )
-
             test_loss += loss_function(y_hat.view(-1), y.view(-1)).item()
             outputs.append(y_hat.cpu().numpy().reshape(-1))
             targets.append(y.cpu().numpy().reshape(-1))
