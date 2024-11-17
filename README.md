@@ -59,9 +59,9 @@ with torch.no_grad():
     outputs = model(**inputs)
 outputs.pooler_output
 ```
+### 3.3 **script**
    -   To train the model, we can run `main.py` script using the train and valid dataset.
    -   We can also run `test.py` to test the model
-### 3.3 **script**
    - `dataset.py` converts protein sequences into token embeddings.
    - `cross_attention.py` implements cross attention mechanisms.
    - `model.py` implements the PLMAM-PLA which consists of a feature extraction module, a feature enhancement module, a feature fusion module and an output module.
