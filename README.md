@@ -46,7 +46,7 @@ Python 3.9 and packages version:
    -  best_model.pt is the PLMAM-PLA model that is trained on the training subest of the PDBbind dataset.
    -  The ESM-2 model is available at (https://github.com/facebookresearch/esm) and Molformer model is available at (https://huggingface.co/ibm/MoLFormer-XL-both-10pct).
    -   To load the model from Huggingface, we can use the following code:
-   -   ```python
+```python
 import torch
 from transformers import AutoModel, AutoTokenizer
 
@@ -58,7 +58,7 @@ inputs = tokenizer(smiles, padding=True, return_tensors="pt")
 with torch.no_grad():
     outputs = model(**inputs)
 outputs.pooler_output
-     ```shell
+```shell
 
    
 
