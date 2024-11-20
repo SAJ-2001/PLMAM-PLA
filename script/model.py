@@ -205,10 +205,11 @@ class MultiViewNet(nn.Module):
 
     def __init__(self,embed_dim=256):
         super(MultiViewNet, self).__init__()
-        self.model = AutoModel.from_pretrained("/data/stu1/saj_pycharm_project/PL2/MoLFormer-XL-both-10pct",
+        self.model = AutoModel.from_pretrained(".../MoLFormer-XL-both-10pct",
                                                trust_remote_code=True
-                                               )
-
+                                               )#change your directory
+        #or
+        #model = AutoModel.from_pretrained("ibm/MoLFormer-XL-both-10pct", deterministic_eval=True, trust_remote_code=True)
         self.esmmodel,_ = esm.pretrained.esm2_t6_8M_UR50D()
         for param in self.model.parameters():
             param.requires_grad = True
