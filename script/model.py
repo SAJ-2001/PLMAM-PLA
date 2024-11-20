@@ -66,43 +66,35 @@ class SELayer(nn.Module):
         )
 
     def forward(self, x):
-        b, c, d = x.size()  # 获取输入张量的形状信息
-        y = self.avg_pool(x)  # 应用自适应平均池化到输入张量
-        y = y.view(b, c)  # 将输出视图重新形状以匹配 nn.Linear 的输入要求
-        y = self.fc(y)  # 通过全连接层进行处理
-        y = y.view(b, c, 1)  # 将输出视图重新形状以匹配输入张量的形状
-        return x * y.expand_as(x)  # 将张量乘以得到的权重
+        b, c, d = x.size()  # Gets the shape information of the input tensor
+        y = self.avg_pool(x)  # Apply adaptive average pooling to the input tensor
+        y = y.view(b, c)  # 
+        y = self.fc(y)  # 
+        y = y.view(b, c, 1)  # 
+        return x * y.expand_as(x)  # Multiply the tensor by the resulting weight
 
 
 class SKConv(nn.Module):
     def __init__(self, in_channels=320, out_channels=256, stride=1, M=2, r=8, L=32):
-        '''
-        :param in_channels: 输入通道维度
-        :param out_channels: 输出通道维度，输入输出通道维度相同
-        :param M: 分支数
-        :param r: 特征Z的长度，计算其维度d时所需的比率
-        :param L: 默认为32
-        采用分组卷积： groups = 32，所以输入channel的数值必须是group的整数倍
-        '''
         super(SKConv, self).__init__()
-        d = max(in_channels // r, L)  # 计算从向量C降维到向量Z的长度d
+        d = max(in_channels // r, L)  # Calculate the length d from vector C to vector Z
         self.M = M
         self.out_channels = out_channels
-        self.conv = nn.ModuleList()  # 根据分支数量添加不同核的卷积操作
+        self.conv = nn.ModuleList()  # Convolution operations that add different cores based on the number of branches
         for i in range(M):
             self.conv.append(nn.Sequential(
                 nn.Conv1d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1+i, dilation=1+i, groups=32, bias=False),
                 nn.BatchNorm1d(out_channels),
                 nn.ReLU(inplace=True)
             ))
-        self.global_pool = nn.AdaptiveAvgPool1d(output_size=1)  # 自适应池化到指定维度，这里指定为1，实现GAP
+        self.global_pool = nn.AdaptiveAvgPool1d(output_size=1)  # Adaptive pooling to a specified dimension, which is specified as 1 here, implements GAP
         self.fc1 = nn.Sequential(
             nn.Conv1d(out_channels, d, kernel_size=1, bias=False),
             nn.BatchNorm1d(d),
             nn.ReLU(inplace=True)
-        )  # 降维
-        self.fc2 = nn.Conv1d(d, out_channels * M, kernel_size=1, bias=False)  # 升维
-        self.softmax = nn.Softmax(dim=1)  # 指定dim=1使得多个全连接层对应位置进行softmax,保证对应位置a+b+..=1
+        )  
+        self.fc2 = nn.Conv1d(d, out_channels * M, kernel_size=1, bias=False)  # 
+        self.softmax = nn.Softmax(dim=1)  
 
     def forward(self, input):
         input = input.transpose(1, 2)
@@ -113,18 +105,18 @@ class SKConv(nn.Module):
             output.append(conv(input))  # [batch_size, out_channels, d]
 
         # the part of fusion
-        U = reduce(lambda x, y: x + y, output)  # 逐元素相加生成混合特征U [batch_size, channel, d]
+        U = reduce(lambda x, y: x + y, output)  # Element-by-element summing yields a blend feature U [batch_size, channel, d]
         s = self.global_pool(U)  # [batch_size, channel, 1]
-        z = self.fc1(s)  # S->Z降维 [batch_size, d, 1]
-        a_b = self.fc2(z)  # Z->a，b升维 [batch_size, out_channels * M, 1]
-        a_b = a_b.view(batch_size, self.M, self.out_channels, -1)  # 调整形状 [batch_size, M, out_channels, 1]
-        a_b = self.softmax(a_b)  # 使得多个全连接层对应位置进行softmax [batch_size, M, out_channels, 1]
+        z = self.fc1(s)  # S->Z [batch_size, d, 1]
+        a_b = self.fc2(z)  # Z->a，b [batch_size, out_channels * M, 1]
+        a_b = a_b.view(batch_size, self.M, self.out_channels, -1)  #  [batch_size, M, out_channels, 1]
+        a_b = self.softmax(a_b)  #  [batch_size, M, out_channels, 1]
 
         # the part of selection
-        a_b = list(a_b.chunk(self.M, dim=1))  # 分割成多个 [batch_size, 1, out_channels, 1], [batch_size, 1, out_channels, 1]
-        a_b = list(map(lambda x: x.view(batch_size, self.out_channels, 1), a_b))  # 调整形状 [batch_size, out_channels, 1]
-        V = list(map(lambda x, y: x * y, output, a_b))  # 权重与对应不同卷积核输出的U逐元素相乘
-        V = reduce(lambda x, y: x + y, V)  # 多个加权后的特征逐元素相加 [batch_size, out_channels, d]
+        a_b = list(a_b.chunk(self.M, dim=1))  # split [batch_size, 1, out_channels, 1], [batch_size, 1, out_channels, 1]
+        a_b = list(map(lambda x: x.view(batch_size, self.out_channels, 1), a_b))  # [batch_size, out_channels, 1]
+        V = list(map(lambda x, y: x * y, output, a_b))  # The weights are multiplied by the U elements corresponding to the outputs of the different convolution kernels
+        V = reduce(lambda x, y: x + y, V)  # Multiple weighted features are added element by element [batch_size, out_channels, d]
         # V = self.max_pool(V).squeeze(2)
         # V = Reduce('b c t -> b c', 'max')(V)
         V = V.transpose(1, 2)
@@ -132,7 +124,7 @@ class SKConv(nn.Module):
 
 class MultiHeadAttentionInteract(nn.Module):
     """
-        多头注意力的交互层
+        The interaction layer of multi-headed attention
     """
 
     def __init__(self, embed_size, head_num, dropout, residual=True):
@@ -203,10 +195,6 @@ class Selfattention(nn.Module):
         )
 
     def forward(self, x):
-        """
-            x : batch, field_dim, embed_dim
-        """
-
         b, f, e = x.shape
         vec_wise_x = self.vec_wise_net(x).reshape(b, f * e)
         m_vec = self.trans_vec_nn(vec_wise_x)
@@ -235,7 +223,7 @@ class MultiViewNet(nn.Module):
         self.onehot_smi_net = ResDilaCNNBlocks(embed_dim, embed_dim)
         self.onehot_prot_net = ResDilaCNNBlocks(embed_dim, embed_dim)
 
-        self.smi_attention_poc = EncoderLayer(256, 256, 0.1, 0.1, 4)  #交叉注意力机制
+        self.smi_attention_poc = EncoderLayer(256, 256, 0.1, 0.1, 4)  #Cross-attention mechanisms
         self.seq_attention_tdlig = EncoderLayer(256, 256, 0.1, 0.1, 4)
 
         proj_dim = 256
