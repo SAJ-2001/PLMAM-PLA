@@ -1,4 +1,4 @@
-# PLMAM-PLA: a novel deep learning model based on pretrained language model and attention mechanism for protein-ligand binding affinity prediction
+# PLMAM-PLA: a method using pretrained language models and attention mechanisms for protein-ligand binding affinity prediction
 ## Table of Contents
 
 1. [Introduction](#introduction)
