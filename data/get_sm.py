@@ -3,8 +3,8 @@ import numpy as np
 import torch
 from transformers import AutoModel, AutoTokenizer,BertTokenizerFast, BertModel
 
-model = AutoModel.from_pretrained("/data/stu1/saj_pycharm_project/PL2/MoLFormer-XL-both-10pct",trust_remote_code=True)
-tokenizer = AutoTokenizer.from_pretrained("/data/stu1/saj_pycharm_project/PL2/MoLFormer-XL-both-10pct",trust_remote_code=True)
+model = AutoModel.from_pretrained(".../MoLFormer-XL-both-10pct",trust_remote_code=True)#Replace with the path to your file
+tokenizer = AutoTokenizer.from_pretrained(".../MoLFormer-XL-both-10pct",trust_remote_code=True)
 
 class FastaESM:
     def __init__(self):
@@ -51,6 +51,6 @@ def main(csv_file_path, output_dir):
         print(f"Saved representation for PDB ID {pdb_id} to {output_file_path}")
 
 if __name__ == "__main__":
-    csv_file_path = "Aurora_smi.csv"  # Replace with the path to your CSV file
-    output_dir = "A_Molformer1"  # Specify the directory where you want to save the .npy files
+    csv_file_path = "training_smi.csv"  # Replace with the path to your CSV file
+    output_dir = "Molformer"  # Specify the directory where you want to save the .npy files
     main(csv_file_path, output_dir)
