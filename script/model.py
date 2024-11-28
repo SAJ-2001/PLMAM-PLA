@@ -179,10 +179,7 @@ class Selfattention(nn.Module):
 
     def __init__(self, field_dim, embed_size, head_num, dropout=0.0):
         super(Selfattention, self).__init__()
-
-
         hidden_dim = 1024
-
         self.vec_wise_net = MultiHeadAttentionInteract(embed_size=embed_size,
                                                        head_num=head_num,
                                                        dropout=dropout)
@@ -243,9 +240,8 @@ class MultiViewNet(nn.Module):
             nn.ReLU())
 
         self.norm = nn.LayerNorm(proj_dim)
-
+        
     def forward(self,smile,sequence,smi,seq):
-
         smile_vectors_onehot = self.embed_smile(smile)
         proteinFeature_onehot = self.embed_prot(sequence)
         compoundFeature_onehot1 = self.onehot_smi_net(smile_vectors_onehot)
@@ -283,12 +279,8 @@ def test(model: nn.Module, test_loader, loss_function, device, show, _p):
             sequence = x[1].to(device)
             smi = x[2].to(device)
             seq = x[3].to(device)
-
-
             y = y.to(device)
-
             y_hat = model(smile,sequence,smi,seq  )
-
             test_loss += loss_function(y_hat.view(-1), y.view(-1)).item()
             outputs.append(y_hat.cpu().numpy().reshape(-1))
             targets.append(y.cpu().numpy().reshape(-1))
