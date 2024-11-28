@@ -56,10 +56,10 @@ for epoch in range(1, n_epoch + 1):
         loss = loss_function(output.view(-1), y.view(-1))
         loss.backward()
         optimizer.step()
-        total_loss += loss.item()  # 累积当前批次的损失值
+        total_loss += loss.item()  # Accumulate the loss value for the current batch
         tbar.set_description(f' * Train Epoch {epoch} Loss={loss.item() / len(y):.3f}')
 
-    # 打印当前 epoch 的总损失值
+    # Prints the total loss value for the current epoch
     avg_loss = total_loss / len(data_loaders['training'])
     print(f'Epoch {epoch}, Total Loss: {avg_loss:.3f}')
 
