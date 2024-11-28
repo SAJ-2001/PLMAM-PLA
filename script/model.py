@@ -247,17 +247,20 @@ class MultiViewNet(nn.Module):
         seq_embedding = self.esmmodel(seq, repr_layers=[6], return_contacts=True)
         token_representations = seq_embedding["representations"][6]
         logits1 = self.SKConv(token_representations)
-
+        
+        #cross-attention
         drug = self.smi_attention_poc(compoundFeature_onehot1,proteinFeature_onehot1,proteinFeature_onehot1)
         pro = self.seq_attention_tdlig(proteinFeature_onehot1,compoundFeature_onehot1,compoundFeature_onehot1)
-        drug1 = self.smi_attention_poc(logits1,logits,logits)
-        pro1 = self.seq_attention_tdlig(logits,logits1,logits1)
+        drug1 = self.smi_attention_poc(logits,logits1,logits1)
+        pro1 = self.seq_attention_tdlig(logits1,logits,logits)
 
-
+        #Concat
         all_features = torch.stack([ drug,pro,drug1,pro1], dim=2)
         all_features = self.norm(all_features.permute(0, 2, 1))
+        #self-attention
         all_features = self.feature_interact(all_features)
-
+        
+        #MLP
         out = self.transform(all_features)
         return out
 
