@@ -59,9 +59,16 @@ with torch.no_grad():
     outputs = model(**inputs)
 outputs.pooler_output
 ```
-### 3.3 **script**
+
+### 3.3 **data**
+   -   affinity_data.csv is the affinity value.
+   -   test_seq.csv, training_seq.csv and validation_seq.csv are protein sequences.
+   -   test_smi.csv, training_smi.csv and validation_smi.csv are ligand SMILES.
+   - `get_esm.py` converts protein sequences into token embeddings.
+   - `get_sm.p` converts ligand SMILES into token embeddings.
+### 3.4 **script**
    -   To train the model, we can run `main.py` script using the train and valid dataset.
-   -   We can also run `test.py` to test the model
-   - `dataset.py` converts protein sequences into token embeddings.
+   -   We can also run `test.py` to test the model.
+   - `dataset.py` is the data preparation phase.
    - `cross_attention.py` implements cross attention mechanisms.
    - `model.py` implements the PLMAM-PLA which consists of a feature extraction module, a feature enhancement module, a feature fusion module and an output module.
