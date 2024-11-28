@@ -54,6 +54,6 @@ def main(csv_file_path, output_dir):
         print(f"Saved representation for PDB ID {pdb_id} to {output_file_path}")
 
 if __name__ == "__main__":
-    csv_file_path = "Aurora_seq.csv"  # Replace with the path to your CSV file
-    output_dir = "A_token embedding1-1000-8M"  # Specify the directory where you want to save the .npy files
+    csv_file_path = "training_seq.csv"  # Replace with the path to your CSV file
+    output_dir = "token embedding-1000-8M"  # Specify the directory where you want to save the .npy files
     main(csv_file_path, output_dir)
