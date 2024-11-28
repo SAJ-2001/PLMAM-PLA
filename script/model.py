@@ -171,7 +171,7 @@ class MultiHeadAttentionInteract(nn.Module):
 
 class Selfattention(nn.Module):
 
-    def __init__(self, field_dim, embed_size, head_num, dropout=0.0):
+    def __init__(self, field_dim, embed_size, head_num, dropout=0.1):
         super(Selfattention, self).__init__()
         hidden_dim = 1024
         self.vec_wise_net = MultiHeadAttentionInteract(embed_size=embed_size,
