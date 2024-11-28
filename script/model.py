@@ -49,11 +49,9 @@ class ResDilaCNNBlocks(nn.Module):
         x = self.linear(x)  # => batchSize × seqLen × filterSize
         x = self.blockLayers(x.transpose(1, 2))  # => batchSize × seqLen × filterSize
         x = self.SELayer(x)
-
         x = self.act(x.transpose(1, 2))  # => batchSize × seqLen × filterSize
-
-
         return x
+        
 class SELayer(nn.Module):
     def __init__(self, channel, reduction=16):
         super(SELayer, self).__init__()
@@ -117,8 +115,6 @@ class SKConv(nn.Module):
         a_b = list(map(lambda x: x.view(batch_size, self.out_channels, 1), a_b))  # [batch_size, out_channels, 1]
         V = list(map(lambda x, y: x * y, output, a_b))  # The weights are multiplied by the U elements corresponding to the outputs of the different convolution kernels
         V = reduce(lambda x, y: x + y, V)  # Multiple weighted features are added element by element [batch_size, out_channels, d]
-        # V = self.max_pool(V).squeeze(2)
-        # V = Reduce('b c t -> b c', 'max')(V)
         V = V.transpose(1, 2)
         return V  # [batch_size, out_channels, d]
 
@@ -128,8 +124,6 @@ class MultiHeadAttentionInteract(nn.Module):
     """
 
     def __init__(self, embed_size, head_num, dropout, residual=True):
-        """
-        """
         super(MultiHeadAttentionInteract, self).__init__()
         self.embed_size = embed_size
         self.head_num = head_num
